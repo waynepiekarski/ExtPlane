@@ -3,5 +3,11 @@ moc_*.cpp
 *.o
 Makefile
 *.user
-*.xpl
 *.so*
+.qmake.*
+*.a
+Makefile.Debug
+Makefile.Release
+/extplane-plugin
+/extplane-server
+/clients
