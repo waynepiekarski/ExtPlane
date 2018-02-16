@@ -71,7 +71,7 @@ void TcpClient::readClient() {
                 if(!ref) { // Ref not subscribed yet, try to subscribe
                     ref = _refProvider->subscribeRef(refName);
                     if(ref) { // Succesfully subscribed
-                        connect(ref, SIGNAL(changed(DataRef*)), this, SLOT(refChanged(DataRef*)));
+                        connect(ref, &DataRef::changed, this, &TcpClient::refChanged);
                         _subscribedRefs.insert(ref);
                         ref->setAccuracy(accuracy);
 
@@ -89,6 +89,9 @@ void TcpClient::readClient() {
                             _refValueB[ref] = qobject_cast<DataDataRef*>(ref)->value();
                         }
                         INFO << "Subscribed to " << ref->name() << ", accuracy " << accuracy << ", type " << ref->typeString();
+                        if(ref->isValid()) {
+                            emit ref->changed(ref); // Force update to all clients
+                        }
                         if(command == "get") ref->setUnsubscribeAfterChange();
                     } else {
                         INFO << "Ref not found" << refName;
@@ -193,6 +196,8 @@ void TcpClient::readClient() {
 
 void TcpClient::refChanged(DataRef *ref) {
     Q_ASSERT(_subscribedRefs.contains(ref));
+    Q_ASSERT(ref->isValid()); // Never send invalid values.
+
     if(ref->type()== extplaneRefTypeFloat) {
         FloatDataRef *refF = qobject_cast<FloatDataRef*>(ref);
         if(qAbs(refF->value() - _refValueF[ref]) < ref->accuracy())
@@ -279,7 +284,8 @@ QSet<QString> TcpClient::listRefs() {
 
     return refNames;
 }
-DataRef *TcpClient::getSubscribedRef(QString &name) {
+
+DataRef *TcpClient::getSubscribedRef(const QString &name) {
     for(DataRef* r : _subscribedRefs.values()) {
         if(r->name() == name)
             return r;
@@ -287,7 +293,7 @@ DataRef *TcpClient::getSubscribedRef(QString &name) {
     return nullptr;
 }
 
-void TcpClient::unsubscribeRef(QString &name)
+void TcpClient::unsubscribeRef(const QString &name)
 {
     DataRef *ref = getSubscribedRef(name);
     if(ref) {
@@ -296,6 +302,7 @@ void TcpClient::unsubscribeRef(QString &name)
         _subscribedRefs.remove(ref);
         _refValueF.remove(ref);
         _refValueFA.remove(ref);
+        _refValueD.remove(ref);
         _refValueB.remove(ref);
         _refValueI.remove(ref);
         _refValueIA.remove(ref);

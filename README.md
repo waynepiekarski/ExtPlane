@@ -17,5 +17,5 @@ https://play.google.com/store/apps/details?id=net.waynepiekarski.xplanecdu
 The source code for XPlaneCDU is available from:
 https://github.com/waynepiekarski/XPlaneCDU
 
-Eventually when ExtPlane does a new v2 release with binari builds, this 
+Eventually when ExtPlane does a new v2 release with binary builds, this 
 repo will no longer be needed.

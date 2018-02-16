@@ -1,13 +1,16 @@
 QT += qml quick
 
 CONFIG += c++11
-
+CONFIG -= debug_and_release
 RESOURCES += qml.qrc
 
 INCLUDEPATH += ../extplane-server
 INCLUDEPATH += $$PWD/../util/
 DEPENDPATH += . ../extplane-server
 LIBS += -L../extplane-server -lextplane-server
+DESTDIR = .
+debug.DESTDIR = $$DESTDIR
+release.DESTDIR = $$DESTDIR
 
 # Additional import path used to resolve QML modules in Qt Creator's code model
 QML_IMPORT_PATH =
@@ -31,6 +34,9 @@ qnx: target.path = /tmp/$${TARGET}/bin
 else: unix:!android: target.path = /opt/$${TARGET}/bin
 !isEmpty(target.path): INSTALLS += target
 
+unix:!macx {
+    QMAKE_POST_LINK += $(COPY_FILE) $(TARGET) $(TARGET)-linux
+}
 
 SOURCES += main.cpp \
     extplanetransformer.cpp \

@@ -4,9 +4,7 @@
 #include <QString>
 #include <QObject>
 #include <QDebug>
-//#include "XPLMDataAccess.h"
 
-//typedef void* XPLMDataRef;
 typedef int extplaneRefID;
 
 // Ref types. These match X-Plane's ref type values.
@@ -26,37 +24,41 @@ enum {
   */
 class DataRef : public QObject {
     Q_OBJECT
-
 public:
     DataRef(QObject *parent, QString name, void* ref);
-    QString &name();
+    const QString &name() const;
     void* ref();
-    int subscribers();
-    void setSubscribers(int subs);
-    void setWritable(bool cw);
+    int subscriberCount() const;
+    void setSubscriberCount(const int subs);
+    void setWritable(const bool cw);
     bool isWritable();
     virtual QString valueString() = 0;
     virtual void setValue(QString &newValue) = 0;
-    extplaneRefID type(); // NOTE: always only one type, although XPLMDataTypeID can have many.
+    extplaneRefID type() const; // NOTE: always only one type, although XPLMDataTypeID can have many.
     virtual void setType(extplaneRefID newType); // Only set after constructor
-    QString typeString();
+    QString typeString() const;
     virtual void setAccuracy(double val);
     virtual void updateAccuracy(double val);
     double accuracy() { return _accuracy; }
     void setUnsubscribeAfterChange();
-    bool shouldUnsubscribeAfterChange();
+    bool shouldUnsubscribeAfterChange() const;
+    bool isValid() const; // True if the value has been set initially. False if not.
+
 signals:
-    void changed(DataRef *ref);
+    void changed(DataRef *ref); // Should not be emitted if value is not valid.
 
 protected:
+    void setValueValid(); // Call this to mark the value valid.
+
     QString _typeString;
     extplaneRefID _type;
     void* _ref;
     double _accuracy;
+    bool _valueValid;
 
 private:
     QString _name;
-    int _subscribers;
+    int _subscriberCount;
     bool _writable;
     bool _unsubscribeAfterChange;
 };

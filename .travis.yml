@@ -1,22 +1,32 @@
 language: cpp
 compiler:
-  - gcc
+- gcc
 before_install:
- - sudo apt-get update -qq
- - sudo apt-get install -qq qtbase5-dev qtdeclarative5-dev qt5-default build-essential wget
- - wget http://developer.x-plane.com/wp-content/plugins/code-sample-generation/sample_templates/XPSDK300.zip
- - unzip *.zip
- - mv SDK XPlaneSDK
- - qmake
-script: make
+- sudo apt-get update -qq
+- sudo apt-get install -qq qtbase5-dev qtdeclarative5-dev qt5-default build-essential wget git unzip autoconf autopoint bison flex gperf intltool libtool ruby scons p7zip-full python3 libgdk-pixbuf2.0-dev libffi-dev
+script: ./scripts/ci-build.sh
 branches:
   only:
-    - master
+  - master
 notifications:
-  recipients:
-    - ville.ranki@iki.fi
-    - dan.krusi@nerves.ch
   email:
+    recipients:
+      - ville.ranki@iki.fi
+      - dan.krusi@nerves.ch
     on_success: change
-    on_failure: always
+    on_failure: change
+cache:
+  directories:
+  - ../mxe
+  - ../XPlaneSDK
+deploy:
+  provider: releases
+  api_key:
+    secure: mGPELl1Bc2nkK6JPsyorKkYC7uAwP4H5AfGev5vpIoOfC0Kp/ubRNVKE3771/tzPw4P2QpYDTvl9dL0hGJcoVEUeomRuBoNViueAzpZVJQSNo68lbse+SAMi2JHSs+p0uyDdIVY51Hu5NFQYnDWvxIgbv4RF8mztymdSS1CtDlU=
+  file:
+    - "extplane-plugin/extplane.zip"
+    - "extplane-transformer/extplane-transformer.zip"
+  skip_cleanup: true
+  on:
+    repo: vranki/ExtPlane
 
