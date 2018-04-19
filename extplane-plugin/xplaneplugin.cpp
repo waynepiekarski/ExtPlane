@@ -39,12 +39,15 @@ float XPlanePlugin::flightLoop(float inElapsedSinceLastCall,
     return flightLoopInterval;
 }
 
+static char __log_printf_buffer[4096];
+#define log_printf(fmt, ...) snprintf(__log_printf_buffer, 4096, "ExtPlaneWP: " fmt, __VA_ARGS__), XPLMDebugString(__log_printf_buffer)
+
 int XPlanePlugin::pluginStart(char * outName, char * outSig, char *outDesc) {
     // Set plugin info
     INFO << "Plugin started";
-    strcpy(outName, "ExtPlane");
-    strcpy(outSig, "org.vranki.extplaneplugin");
-    strcpy(outDesc, "Read and write X-Plane datarefs from external programs using TCP sockets.");
+    strcpy(outName, "ExtPlaneWP");
+    strcpy(outSig, "net.waynepiekarski.extplaneplugin");
+    strcpy(outDesc, "Read and write X-Plane datarefs from external programs using TCP sockets (customized build).");
 
     // Init application and server
     app = new QCoreApplication(argc, &argv);
@@ -52,7 +55,10 @@ int XPlanePlugin::pluginStart(char * outName, char * outSig, char *outDesc) {
 
     server = new TcpServer(this, this);
     connect(server, SIGNAL(setFlightLoopInterval(float)), this, SLOT(setFlightLoopInterval(float)));
-
+    
+    // Log that we have started
+    log_printf ("Custom ExtPlane plugin V2c compiled by Wayne Piekarski https://github.com/waynepiekarski/ExtPlane listening on TCP port %d - compiled %s %s\n", EXTPLANE_PORT, __DATE__, __TIME__);
+    
     // Register the nav custom data accessors
     XPLMRegisterDataAccessor("extplane/navdata/5km",
                              xplmType_Data,                                 // The types we support
