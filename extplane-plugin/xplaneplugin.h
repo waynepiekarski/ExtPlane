@@ -16,6 +16,7 @@ class DataRef;
   */
 class XPlanePlugin : public QObject, public DataRefProvider {
     Q_OBJECT
+
 public:
     explicit XPlanePlugin(QObject *parent = nullptr);
 
@@ -35,11 +36,15 @@ public: // DataRefProvider implementation
     virtual void buttonRelease(int buttonid);
     virtual void changeDataRef(DataRef *ref);
     virtual void command(QString &name, extplaneCommandType type);
+    virtual bool loadSituation(QString sitFileLocation);
 
 public slots:
     void setFlightLoopInterval(float newInterval);
 
 private:
+    // Returns the ref name without modifier part (after :)
+    QString refNameWithoutModifiers(QString &original);
+
     QList<DataRef*> refs;
     int argc; // Fake argc and argv for QCoreApplication
     char *argv;
